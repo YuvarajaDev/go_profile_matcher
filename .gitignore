@@ -1,0 +1,53 @@
+# ── Python ──────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environment
+backend/venv/
+venv/
+env/
+.env
+.env.*
+!.env.example
+
+# ── Node / Frontend ─────────────────────────────────────────────────────
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+node_modules/
+
+# ── Logs ────────────────────────────────────────────────────────────────
+*.log
+npm-debug.log*
+
+# ── Data / Resumes ──────────────────────────────────────────────────────
+data/resumes/*.pdf
+data/resumes/*.docx
+data/resumes/*.doc
+
+# ── ML model cache ──────────────────────────────────────────────────────
+# BGE-small downloads to HuggingFace cache — not in repo
+backend/ml/__pycache__/
+
+# ── OS ──────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── IDE ─────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ── Docker volumes / DB data ────────────────────────────────────────────
+postgres_data/
+pgdata/
