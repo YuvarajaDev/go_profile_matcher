@@ -30,7 +30,7 @@ def create_chat(user=Depends(get_current_user)):
 
 
 @router.get("/{chat_id}")
-def get_chat(chat_id: int, user=Depends(get_current_user)):
+def get_chat(chat_id: str, user=Depends(get_current_user)):
     with get_cursor() as cur:
         cur.execute(
             "SELECT id FROM chats WHERE id = %s AND user_id = %s", (chat_id, user["id"])
@@ -54,7 +54,7 @@ def get_chat(chat_id: int, user=Depends(get_current_user)):
 
 
 @router.delete("/{chat_id}")
-def delete_chat(chat_id: int, user=Depends(get_current_user)):
+def delete_chat(chat_id: str, user=Depends(get_current_user)):
     with get_cursor() as cur:
         cur.execute(
             "DELETE FROM chats WHERE id = %s AND user_id = %s", (chat_id, user["id"])
@@ -68,7 +68,7 @@ class MessageRequest(BaseModel):
 
 
 @router.post("/{chat_id}/message")
-def message_in_chat(chat_id: int, req: MessageRequest, user=Depends(get_current_user)):
+def message_in_chat(chat_id: str, req: MessageRequest, user=Depends(get_current_user)):
     if not req.message.strip():
         raise HTTPException(status_code=400, detail="Message cannot be empty")
 

@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS users (
 
 -- Chats table
 CREATE TABLE IF NOT EXISTS chats (
-    id         SERIAL PRIMARY KEY,
+    id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id    INTEGER REFERENCES users(id) ON DELETE CASCADE,
     title      VARCHAR(500) DEFAULT 'New Chat',
     created_at TIMESTAMP DEFAULT NOW()
@@ -46,8 +46,8 @@ CREATE TABLE IF NOT EXISTS chats (
 
 -- Messages table
 CREATE TABLE IF NOT EXISTS messages (
-    id         SERIAL PRIMARY KEY,
-    chat_id    INTEGER REFERENCES chats(id) ON DELETE CASCADE,
+    id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    chat_id    UUID REFERENCES chats(id) ON DELETE CASCADE,
     role       VARCHAR(20) NOT NULL,
     content    TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT NOW()

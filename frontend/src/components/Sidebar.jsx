@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import {
   Box, Typography, Button, List, ListItemButton, ListItemText,
   IconButton, Tooltip, Divider, Avatar, CircularProgress,
@@ -26,8 +26,7 @@ function groupChatsByDate(chats) {
   return groups
 }
 
-export default function Sidebar({ chats, onNewChat, onDeleteChat, loading }) {
-  const { chatId } = useParams()
+export default function Sidebar({ chats, activeChatId, onNewChat, onSelectChat, onDeleteChat, loading }) {
   const navigate = useNavigate()
   const [hoveredId, setHoveredId] = useState(null)
   const user = JSON.parse(localStorage.getItem('user') || '{}')
@@ -106,10 +105,10 @@ export default function Sidebar({ chats, onNewChat, onDeleteChat, loading }) {
                   {items.map((chat) => (
                     <ListItemButton
                       key={chat.id}
-                      selected={String(chat.id) === chatId}
+                      selected={chat.id === activeChatId}
                       onMouseEnter={() => setHoveredId(chat.id)}
                       onMouseLeave={() => setHoveredId(null)}
-                      onClick={() => navigate(`/chat/${chat.id}`)}
+                      onClick={() => onSelectChat(chat.id)}
                       sx={{
                         mx: 1, borderRadius: 1.5, mb: 0.3, py: 0.8,
                         '&.Mui-selected': { bgcolor: 'rgba(244,195,16,0.15)', '&:hover': { bgcolor: 'rgba(244,195,16,0.2)' } },
@@ -120,8 +119,8 @@ export default function Sidebar({ chats, onNewChat, onDeleteChat, loading }) {
                         primary={chat.title}
                         primaryTypographyProps={{
                           sx: {
-                            color: String(chat.id) === chatId ? '#f4c310' : 'rgba(255,255,255,0.85)',
-                            fontSize: '0.83rem', fontWeight: String(chat.id) === chatId ? 600 : 400,
+                            color: chat.id === activeChatId ? '#f4c310' : 'rgba(255,255,255,0.85)',
+                            fontSize: '0.83rem', fontWeight: chat.id === activeChatId ? 600 : 400,
                             overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                           },
                         }}
