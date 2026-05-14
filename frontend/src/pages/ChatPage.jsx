@@ -159,7 +159,7 @@ export default function ChatPage() {
         <Box sx={{
           px: 3, py: 2, bgcolor: '#fff', borderTop: '1px solid #e5e7eb',
         }}>
-          <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'flex-end', maxWidth: 800, mx: 'auto' }}>
+          <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'flex-center', maxWidth: 850, mx: 'auto' }}>
             <TextField
               fullWidth multiline maxRows={6}
               placeholder="Paste a Job Description or describe the profile you're looking for..."
@@ -181,7 +181,7 @@ export default function ChatPage() {
                   disabled={!input.trim() || isLoading}
                   sx={{
                     bgcolor: '#282b4a', color: '#fff',
-                    width: 48, height: 48, borderRadius: 2, flexShrink: 0,
+                    width: 60, height: 48, borderRadius: 2, flexShrink: 0,
                     '&:hover': { bgcolor: '#1a1d32' },
                     '&:disabled': { bgcolor: '#d1d5db', color: '#9ca3af' },
                   }}
@@ -194,9 +194,9 @@ export default function ChatPage() {
               </span>
             </Tooltip>
           </Box>
-          <Typography variant="caption" sx={{ display: 'block', textAlign: 'center', mt: 1, color: '#9ca3af' }}>
+          {/* <Typography variant="caption" sx={{ display: 'block', textAlign: 'center', mt: 1, color: '#9ca3af' }}>
             Press Enter to send · Shift+Enter for new line
-          </Typography>
+          </Typography> */}
         </Box>
       </Box>
 

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
   Box, Typography, Button, List, ListItemButton, ListItemText,
-  IconButton, Tooltip, Divider, Avatar,
+  IconButton, Tooltip, Divider, Avatar, CircularProgress,
 } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
@@ -81,7 +81,11 @@ export default function Sidebar({ chats, onNewChat, onDeleteChat, loading }) {
         '&::-webkit-scrollbar': { width: 4 },
         '&::-webkit-scrollbar-thumb': { bgcolor: 'rgba(255,255,255,0.2)', borderRadius: 2 },
       }}>
-        {chats.length === 0 ? (
+        {loading ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', pt: 4 }}>
+            <CircularProgress size={24} sx={{ color: 'rgba(255,255,255,0.4)' }} />
+          </Box>
+        ) : chats.length === 0 ? (
           <Box sx={{ px: 2, py: 3, textAlign: 'center' }}>
             <ChatBubbleOutlineIcon sx={{ color: 'rgba(255,255,255,0.3)', fontSize: 32, mb: 1 }} />
             <Typography sx={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.8rem' }}>

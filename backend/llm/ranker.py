@@ -1,6 +1,7 @@
 import json
 import litellm
 import os
+import time
 from dotenv import load_dotenv
 from pathlib import Path
 
@@ -105,6 +106,56 @@ Be specific and actionable. No fluff."""
         temperature=0.3,
     )
     return response.choices[0].message.content.strip()
+
+
+def extract_profile_metadata(raw_text: str) -> dict:
+    """Extract skills, title, and experience from resume text using LLM.
+
+    Returns: {"skills": [...], "current_title": "...", "years_experience": 5.0}
+    Falls back to empty dict on any failure — caller handles fallback.
+    """
+    prompt = f"""Extract information from the resume below and return ONLY valid JSON, no explanation, no markdown.
+
+Expected format:
+{{
+  "skills": ["skill1", "skill2", "skill3"],
+  "current_title": "most recent job title or null",
+  "years_experience": 5
+}}
+
+Rules:
+- skills: all technical tools, software, domain expertise, certifications, and methodologies visible in the resume — be thorough
+- current_title: the most recent or current job title only, or null if unclear
+- years_experience: total years as a plain number, or null if not mentioned
+
+Resume:
+{raw_text[:3000]}"""
+
+    delays = [5, 15, 30]  # seconds between retries on rate limit
+    for attempt, wait in enumerate(delays, start=1):
+        try:
+            response = litellm.completion(
+                model=LLM_MODEL,
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=600,
+                temperature=0.0,
+            )
+            content = response.choices[0].message.content.strip()
+            # Strip markdown code fences if model wraps output
+            if content.startswith("```"):
+                content = content.split("```")[1]
+                if content.startswith("json"):
+                    content = content[4:]
+                content = content.strip()
+            return json.loads(content)
+        except litellm.RateLimitError:
+            print(f"  [Rate limit] Bedrock throttled — waiting {wait}s before retry {attempt}/3...")
+            time.sleep(wait)
+        except Exception as e:
+            print(f"  [LLM extraction failed] {e}")
+            return {}
+    print("  [LLM extraction failed] All retries exhausted — using keyword fallback")
+    return {}
 
 
 def rank_and_explain(jd_text: str, candidates: list[dict], explain_top: int = 5) -> list[dict]:

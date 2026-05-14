@@ -28,7 +28,7 @@ pgvector   Groq/Bedrock
 ### Full RAG Pipeline
 
 **Ingestion (one-time):**
-Resume file → parser.py (text + metadata) → embedder.py (BGE-small 384-dim vector + skills) → pgvector DB
+Resume file → parser.py (text + metadata) → embedder.py (BGE-small 384-dim vector + domain skill keywords) → pgvector DB
 
 **Matching (per request):**
 JD text → embed → cosine similarity (HNSW) → top-K candidates → LLM explanation (top 5) → JSON response
@@ -106,7 +106,7 @@ Rag/
 | phone | VARCHAR(50) | Regex extracted |
 | current_title | VARCHAR(255) | Keyword heuristic (lines 2-12) |
 | years_experience | FLOAT | Regex: "X years of experience" patterns |
-| skills | TEXT[] | 35+ predefined keywords matched |
+| skills | TEXT[] | 150+ domain keywords matched (IT, ITES, Marketing, Finance, Banking, Healthcare, Education, Retail, Manufacturing, Logistics, Legal, HR) |
 | raw_text | TEXT | Full resume text |
 | embedding | vector(384) | BGE-small-en-v1.5 |
 | file_name | VARCHAR(255) | Used for deduplication |
@@ -252,7 +252,9 @@ http://localhost:8000/docs
 | HNSW index (pgvector) | Millisecond ANN search even at 6 lakh resume scale |
 | LiteLLM for LLM calls | Swap LLM by changing one env var — no code change |
 | Only top 5 get LLM explanation | Controls LLM cost — rest get vector score only |
+| min_score=0.30 threshold in matcher | Only profiles with ≥30% cosine similarity are returned — no padding to fill top-K |
 | Dedup by file_name + email | Prevents same resume being ingested multiple times |
+| Keyword-based skill extraction (POC) | 150+ keywords across 10 domains; no LLM cost at ingestion time |
 | JWT in localStorage | Simple auth for POC — upgrade to httpOnly cookies for production |
 | ChatGPT-style UI | Natural recruiter UX — paste JD, get results in chat flow |
 
@@ -292,3 +294,18 @@ python-multipart          # File upload support
 - Add pagination to /chats/{id}/match results
 - Move JWT to httpOnly cookies for security
 - Add role-based access (admin vs recruiter)
+
+## Planned Improvements (post-POC approval)
+
+### LLM-based Skill & Text Extraction
+Current skill extraction uses a static keyword list (~150 keywords across 10 domains). This works for POC but misses niche or emerging skills not in the list.
+
+**Planned upgrade — LLM extraction at ingestion:**
+```
+Resume text → LLM prompt → structured JSON of skills, title, experience
+```
+- LLM reads the full resume and extracts skills dynamically — no hardcoded list needed
+- Works for any domain, any language, niche roles (e.g. ESG Analyst, Prompt Engineer)
+- One LLM call per resume ingestion (use a cheap/fast model like Claude Haiku to control cost)
+- Also improves `current_title` and `years_experience` extraction accuracy over current regex/heuristic approach
+- Implementation: add `llm_extract_metadata(raw_text)` in `backend/ingestion/embedder.py`, call it when keyword skill count < threshold
