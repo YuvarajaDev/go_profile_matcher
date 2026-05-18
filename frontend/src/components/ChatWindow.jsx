@@ -6,8 +6,8 @@ import CandidateCard from './CandidateCard'
 
 function TypingIndicator() {
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 2, py: 1.5 }}>
-      <Avatar sx={{ width: 32, height: 32, bgcolor: '#282b4a' }}>
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, px: { xs: 1.5, md: 2 }, py: 1.5 }}>
+      <Avatar sx={{ width: 32, height: 32, bgcolor: '#282b4a', flexShrink: 0 }}>
         <SmartToyOutlinedIcon sx={{ fontSize: 18, color: '#f4c310' }} />
       </Avatar>
       <Box sx={{
@@ -32,11 +32,12 @@ function TypingIndicator() {
 
 function UserMessage({ content }) {
   return (
-    <Box sx={{ display: 'flex', justifyContent: 'flex-end', px: 2, py: 1 }}>
-      <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 1, maxWidth: '70%' }}>
+    <Box sx={{ display: 'flex', justifyContent: 'flex-end', px: { xs: 1.5, md: 2 }, py: 1 }}>
+      <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 1, maxWidth: { xs: '88%', sm: '75%', md: '70%' } }}>
         <Box sx={{
           bgcolor: '#282b4a', color: '#fff', px: 2.5, py: 1.5,
-          borderRadius: '12px 12px 0 12px', fontSize: '0.9rem', lineHeight: 1.6,
+          borderRadius: '12px 12px 0 12px',
+          fontSize: { xs: '0.85rem', md: '0.9rem' }, lineHeight: 1.6,
           whiteSpace: 'pre-wrap', wordBreak: 'break-word',
         }}>
           {content}
@@ -52,18 +53,18 @@ function UserMessage({ content }) {
 function AssistantMessage({ content }) {
   const isObj = typeof content === 'object' && content !== null
 
-  // Conversational reply from LLM router
   if (isObj && content.type === 'message') {
     return (
-      <Box sx={{ display: 'flex', px: 2, py: 1, gap: 1 }}>
+      <Box sx={{ display: 'flex', px: { xs: 1.5, md: 2 }, py: 1, gap: 1 }}>
         <Avatar sx={{ width: 32, height: 32, bgcolor: '#282b4a', flexShrink: 0, mt: 0.5 }}>
           <SmartToyOutlinedIcon sx={{ fontSize: 18, color: '#f4c310' }} />
         </Avatar>
         <Box sx={{
           bgcolor: '#fff', border: '1px solid #e5e7eb',
-          borderRadius: '0 12px 12px 12px', px: 2.5, py: 1.5, maxWidth: 520,
+          borderRadius: '0 12px 12px 12px', px: 2.5, py: 1.5,
+          maxWidth: { xs: '88%', sm: '80%', md: 520 },
         }}>
-          <Typography sx={{ color: '#374151', fontSize: '0.9rem', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
+          <Typography sx={{ color: '#374151', fontSize: { xs: '0.85rem', md: '0.9rem' }, lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
             {content.content}
           </Typography>
         </Box>
@@ -71,18 +72,18 @@ function AssistantMessage({ content }) {
     )
   }
 
-  // Backend/network error
   if (isObj && content.error) {
     return (
-      <Box sx={{ display: 'flex', px: 2, py: 1, gap: 1 }}>
+      <Box sx={{ display: 'flex', px: { xs: 1.5, md: 2 }, py: 1, gap: 1 }}>
         <Avatar sx={{ width: 32, height: 32, bgcolor: '#282b4a', flexShrink: 0, mt: 0.5 }}>
           <SmartToyOutlinedIcon sx={{ fontSize: 18, color: '#f4c310' }} />
         </Avatar>
         <Box sx={{
           bgcolor: '#fff', border: '1px solid #fecaca',
-          borderRadius: '0 12px 12px 12px', px: 2.5, py: 1.5, maxWidth: 520,
+          borderRadius: '0 12px 12px 12px', px: 2.5, py: 1.5,
+          maxWidth: { xs: '88%', sm: '80%', md: 520 },
         }}>
-          <Typography sx={{ color: '#ef4444', fontSize: '0.9rem' }}>
+          <Typography sx={{ color: '#ef4444', fontSize: { xs: '0.85rem', md: '0.9rem' } }}>
             {content.error}
           </Typography>
         </Box>
@@ -90,27 +91,26 @@ function AssistantMessage({ content }) {
     )
   }
 
-  // Search results — handles both new { type: "results", ... } and old { results, total } format
   const results = isObj ? (content.results || []) : []
   const total = isObj ? (content.total || 0) : 0
 
   return (
-    <Box sx={{ display: 'flex', px: 2, py: 1, gap: 1 }}>
+    <Box sx={{ display: 'flex', px: { xs: 1.5, md: 2 }, py: 1, gap: 1 }}>
       <Avatar sx={{ width: 32, height: 32, bgcolor: '#282b4a', flexShrink: 0, mt: 0.5 }}>
         <SmartToyOutlinedIcon sx={{ fontSize: 18, color: '#f4c310' }} />
       </Avatar>
-      <Box sx={{ flex: 1, maxWidth: 680 }}>
+      <Box sx={{ flex: 1, minWidth: 0, maxWidth: { xs: '100%', sm: '90%', md: 700 } }}>
         <Box sx={{
           bgcolor: '#fff', border: '1px solid #e5e7eb',
-          borderRadius: '0 12px 12px 12px', p: 2,
+          borderRadius: '0 12px 12px 12px', p: { xs: 1.5, md: 2 },
         }}>
           {total === 0 ? (
-            <Typography sx={{ color: '#6b7280', fontSize: '0.9rem' }}>
+            <Typography sx={{ color: '#6b7280', fontSize: { xs: '0.85rem', md: '0.9rem' } }}>
               No matching profiles found. Try a different job description or upload more resumes.
             </Typography>
           ) : (
             <>
-              <Typography sx={{ fontWeight: 600, color: '#282b4a', mb: 1.5, fontSize: '0.9rem' }}>
+              <Typography sx={{ fontWeight: 600, color: '#282b4a', mb: 1.5, fontSize: { xs: '0.85rem', md: '0.9rem' } }}>
                 Found <span style={{ color: '#f4c310', fontWeight: 700 }}>{total}</span> matching profile{total > 1 ? 's' : ''}:
               </Typography>
               {results.map((candidate, idx) => (
@@ -126,18 +126,19 @@ function AssistantMessage({ content }) {
 
 function WelcomeMessage() {
   return (
-    <Box sx={{ display: 'flex', px: 2, py: 1, gap: 1 }}>
+    <Box sx={{ display: 'flex', px: { xs: 1.5, md: 2 }, py: 1, gap: 1 }}>
       <Avatar sx={{ width: 32, height: 32, bgcolor: '#282b4a', flexShrink: 0, mt: 0.5 }}>
         <SmartToyOutlinedIcon sx={{ fontSize: 18, color: '#f4c310' }} />
       </Avatar>
       <Box sx={{
         bgcolor: '#fff', border: '1px solid #e5e7eb',
-        borderRadius: '0 12px 12px 12px', px: 2.5, py: 2, maxWidth: 480,
+        borderRadius: '0 12px 12px 12px', px: 2.5, py: 2,
+        maxWidth: { xs: '88%', sm: '80%', md: 480 },
       }}>
-        <Typography sx={{ fontWeight: 700, color: '#282b4a', mb: 0.5 }}>
+        <Typography sx={{ fontWeight: 700, color: '#282b4a', mb: 0.5, fontSize: { xs: '0.9rem', md: '1rem' } }}>
           Welcome to GO Profile Matcher AI
         </Typography>
-        <Typography sx={{ color: '#6b7280', fontSize: '0.9rem', lineHeight: 1.6 }}>
+        <Typography sx={{ color: '#6b7280', fontSize: { xs: '0.8rem', md: '0.9rem' }, lineHeight: 1.6 }}>
           Paste a Job Description or describe the profile you're looking for. I'll search through the resume database and find the best matching candidates for you.
         </Typography>
       </Box>

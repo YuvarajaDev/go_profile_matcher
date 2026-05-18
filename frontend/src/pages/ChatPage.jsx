@@ -5,6 +5,7 @@ import {
 } from '@mui/material'
 import SendIcon from '@mui/icons-material/Send'
 import FileUploadOutlinedIcon from '@mui/icons-material/FileUploadOutlined'
+import MenuIcon from '@mui/icons-material/Menu'
 import Sidebar from '../components/Sidebar'
 import ChatWindow from '../components/ChatWindow'
 import UploadModal from '../components/UploadModal'
@@ -18,6 +19,7 @@ export default function ChatPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [loadingChats, setLoadingChats] = useState(true)
   const [uploadOpen, setUploadOpen] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   // On mount: load chat list + restore chat from URL if present
   useEffect(() => {
@@ -26,7 +28,6 @@ export default function ChatPage() {
       try {
         const { data } = await chatApi.list()
         setChats(data)
-        // UUID in URL: /chat/<uuid>
         const match = window.location.pathname.match(/^\/chat\/([a-f0-9-]{36})$/)
         if (match) {
           const urlChatId = match[1]
@@ -70,12 +71,11 @@ export default function ChatPage() {
     setInput('')
     setIsLoading(true)
 
-    // Lazy chat creation — only on first message (ChatGPT style)
     let currentChatId = activeChatId
     if (!currentChatId) {
       try {
         const { data } = await chatApi.create()
-        currentChatId = data.id   // UUID string
+        currentChatId = data.id
         setActiveChatId(currentChatId)
         window.history.pushState({}, '', `/chat/${currentChatId}`)
         setChats((prev) => [{ ...data, title: text.slice(0, 60) }, ...prev])
@@ -86,10 +86,8 @@ export default function ChatPage() {
       }
     }
 
-    // Optimistic user message
     setMessages((prev) => [...prev, { id: crypto.randomUUID(), role: 'user', content: text }])
 
-    // Update sidebar title on first real message
     setChats((prev) => prev.map((c) =>
       c.id === currentChatId && c.title === 'New Chat'
         ? { ...c, title: text.slice(0, 60) }
@@ -138,29 +136,60 @@ export default function ChatPage() {
         onSelectChat={selectChat}
         onDeleteChat={handleDeleteChat}
         loading={loadingChats}
+        mobileOpen={sidebarOpen}
+        onMobileClose={() => setSidebarOpen(false)}
       />
 
       {/* Main area */}
       <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+
         {/* Navbar */}
         <AppBar position="static" elevation={0} sx={{
           bgcolor: '#fff', borderBottom: '1px solid #e5e7eb',
         }}>
-          <Toolbar sx={{ justifyContent: 'space-between', minHeight: '56px !important', px: 3 }}>
-            <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#282b4a' }}>
-              {activeTitle}
-            </Typography>
-            <Button
-              variant="contained" startIcon={<FileUploadOutlinedIcon />}
-              onClick={() => setUploadOpen(true)}
-              sx={{
-                bgcolor: '#f4c310', color: '#282b4a',
-                '&:hover': { bgcolor: '#e6b800' },
-                fontWeight: 700, borderRadius: 2,
-              }}
-            >
-              Upload Resume
-            </Button>
+          <Toolbar sx={{
+            justifyContent: 'space-between',
+            minHeight: { xs: '52px !important', md: '56px !important' },
+            px: { xs: 1.5, md: 3 },
+            gap: 1,
+          }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0 }}>
+              {/* Hamburger — mobile only */}
+              <IconButton
+                onClick={() => setSidebarOpen(true)}
+                size="small"
+                sx={{ display: { md: 'none' }, color: '#282b4a', flexShrink: 0 }}
+              >
+                <MenuIcon />
+              </IconButton>
+              <Typography
+                variant="subtitle1"
+                noWrap
+                sx={{ fontWeight: 700, color: '#282b4a', fontSize: { xs: '0.85rem', md: '1rem' } }}
+              >
+                {activeTitle}
+              </Typography>
+            </Box>
+
+            {/* Upload Resume — text+icon on desktop, icon-only on mobile */}
+            <Tooltip title="Upload Resume">
+              <Button
+                variant="contained"
+                onClick={() => setUploadOpen(true)}
+                sx={{
+                  bgcolor: '#f4c310', color: '#282b4a',
+                  '&:hover': { bgcolor: '#e6b800' },
+                  fontWeight: 700, borderRadius: 2,
+                  minWidth: 0, flexShrink: 0,
+                  px: { xs: 1.2, md: 2 },
+                }}
+              >
+                <FileUploadOutlinedIcon sx={{ fontSize: 20 }} />
+                <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' }, ml: 0.8 }}>
+                  Upload Resume
+                </Box>
+              </Button>
+            </Tooltip>
           </Toolbar>
         </AppBar>
 
@@ -168,8 +197,11 @@ export default function ChatPage() {
         <ChatWindow messages={messages} isLoading={isLoading} />
 
         {/* Input area */}
-        <Box sx={{ px: 3, py: 2, bgcolor: '#fff', borderTop: '1px solid #e5e7eb' }}>
-          <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'flex-end' }}>
+        <Box sx={{
+          px: { xs: 1.5, md: 3 }, py: { xs: 1.5, md: 2 },
+          bgcolor: '#fff', borderTop: '1px solid #e5e7eb',
+        }}>
+          <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-end' }}>
             <TextField
               fullWidth multiline maxRows={6}
               placeholder="Paste a Job Description or describe the profile you're looking for..."
@@ -177,9 +209,11 @@ export default function ChatPage() {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               disabled={isLoading}
+              size="small"
               sx={{
                 '& .MuiOutlinedInput-root': {
                   borderRadius: 3,
+                  fontSize: { xs: '0.875rem', md: '1rem' },
                   '&.Mui-focused fieldset': { borderColor: '#282b4a' },
                 },
               }}
@@ -191,14 +225,15 @@ export default function ChatPage() {
                   disabled={!input.trim() || isLoading}
                   sx={{
                     bgcolor: '#282b4a', color: '#fff',
-                    width: 48, height: 48, borderRadius: 2, flexShrink: 0,
+                    width: { xs: 40, md: 48 }, height: { xs: 40, md: 48 },
+                    borderRadius: 2, flexShrink: 0,
                     '&:hover': { bgcolor: '#1a1d32' },
                     '&:disabled': { bgcolor: '#d1d5db', color: '#9ca3af' },
                   }}
                 >
                   {isLoading
-                    ? <CircularProgress size={20} sx={{ color: '#fff' }} />
-                    : <SendIcon sx={{ fontSize: 20 }} />
+                    ? <CircularProgress size={18} sx={{ color: '#fff' }} />
+                    : <SendIcon sx={{ fontSize: { xs: 18, md: 20 } }} />
                   }
                 </IconButton>
               </span>

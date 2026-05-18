@@ -9,7 +9,8 @@ function ScoreBadge({ score }) {
     <Box sx={{
       px: 1.5, py: 0.5, borderRadius: 2, bgcolor: color,
       color: score >= 60 && score < 80 ? '#282b4a' : '#fff',
-      fontWeight: 700, fontSize: '0.85rem', whiteSpace: 'nowrap',
+      fontWeight: 700, fontSize: { xs: '0.75rem', md: '0.85rem' },
+      whiteSpace: 'nowrap', flexShrink: 0,
     }}>
       {score}% Match
     </Box>
@@ -24,11 +25,14 @@ export default function CandidateCard({ candidate, rank }) {
   return (
     <Box sx={{
       bgcolor: '#fff', border: '1px solid #e5e7eb', borderRadius: 2,
-      p: 2, mb: 1.5, boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
+      p: { xs: 1.5, md: 2 }, mb: 1.5, boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
     }}>
       {/* Header */}
-      <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 1 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+      <Box sx={{
+        display: 'flex', alignItems: 'flex-start',
+        justifyContent: 'space-between', gap: 1, mb: 1, flexWrap: 'wrap',
+      }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, minWidth: 0, flex: 1 }}>
           <Box sx={{
             width: 32, height: 32, borderRadius: '50%', bgcolor: '#282b4a',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -36,12 +40,14 @@ export default function CandidateCard({ candidate, rank }) {
           }}>
             #{rank}
           </Box>
-          <Box>
-            <Typography variant="subtitle1" sx={{ fontWeight: 700, lineHeight: 1.2, color: '#282b4a' }}>
+          <Box sx={{ minWidth: 0 }}>
+            <Typography variant="subtitle1" noWrap sx={{ fontWeight: 700, lineHeight: 1.2, color: '#282b4a', fontSize: { xs: '0.9rem', md: '1rem' } }}>
               {candidate.candidate_name || 'Unknown Candidate'}
             </Typography>
             {candidate.current_title && (
-              <Typography variant="body2" color="text.secondary">{candidate.current_title}</Typography>
+              <Typography variant="body2" noWrap color="text.secondary" sx={{ fontSize: { xs: '0.75rem', md: '0.875rem' } }}>
+                {candidate.current_title}
+              </Typography>
             )}
           </Box>
         </Box>
@@ -49,7 +55,7 @@ export default function CandidateCard({ candidate, rank }) {
       </Box>
 
       {/* Meta info */}
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 1.5 }}>
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: { xs: 1, md: 2 }, mb: 1.5 }}>
         {candidate.years_experience && (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             <WorkOutlineIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
@@ -59,15 +65,19 @@ export default function CandidateCard({ candidate, rank }) {
           </Box>
         )}
         {candidate.email && (
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-            <EmailOutlinedIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
-            <Typography variant="caption" color="text.secondary">{candidate.email}</Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, minWidth: 0 }}>
+            <EmailOutlinedIcon sx={{ fontSize: 14, color: 'text.secondary', flexShrink: 0 }} />
+            <Typography variant="caption" color="text.secondary" noWrap>
+              {candidate.email}
+            </Typography>
           </Box>
         )}
         {candidate.phone && (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             <PhoneOutlinedIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
-            <Typography variant="caption" color="text.secondary">{candidate.phone}</Typography>
+            <Typography variant="caption" color="text.secondary">
+              {candidate.phone}
+            </Typography>
           </Box>
         )}
       </Box>
@@ -93,7 +103,7 @@ export default function CandidateCard({ candidate, rank }) {
           <Divider sx={{ my: 1 }} />
           <Box>
             {explanation.map((line, i) => (
-              <Typography key={i} variant="body2" sx={{ color: '#374151', mb: 0.3, fontSize: '0.82rem' }}>
+              <Typography key={i} variant="body2" sx={{ color: '#374151', mb: 0.3, fontSize: { xs: '0.78rem', md: '0.82rem' } }}>
                 {line}
               </Typography>
             ))}

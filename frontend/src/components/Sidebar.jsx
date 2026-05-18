@@ -2,12 +2,15 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Box, Typography, Button, List, ListItemButton, ListItemText,
-  IconButton, Tooltip, Divider, Avatar, CircularProgress,
+  IconButton, Tooltip, Divider, Avatar, CircularProgress, Drawer,
+  useTheme, useMediaQuery,
 } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
 import LogoutIcon from '@mui/icons-material/Logout'
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline'
+
+const SIDEBAR_WIDTH = 260
 
 function groupChatsByDate(chats) {
   const now = new Date()
@@ -26,10 +29,11 @@ function groupChatsByDate(chats) {
   return groups
 }
 
-export default function Sidebar({ chats, activeChatId, onNewChat, onSelectChat, onDeleteChat, loading }) {
+function SidebarContent({ chats, activeChatId, onNewChat, onSelectChat, onDeleteChat, loading, onClose }) {
   const navigate = useNavigate()
   const [hoveredId, setHoveredId] = useState(null)
   const user = JSON.parse(localStorage.getItem('user') || '{}')
+  const grouped = groupChatsByDate(chats)
 
   const handleLogout = () => {
     localStorage.removeItem('token')
@@ -37,11 +41,14 @@ export default function Sidebar({ chats, activeChatId, onNewChat, onSelectChat, 
     navigate('/login')
   }
 
-  const grouped = groupChatsByDate(chats)
+  const handleSelect = (id) => {
+    onSelectChat(id)
+    onClose?.()   // close drawer on mobile after selecting a chat
+  }
 
   return (
     <Box sx={{
-      width: 260, flexShrink: 0, bgcolor: '#282b4a',
+      width: SIDEBAR_WIDTH, bgcolor: '#282b4a',
       display: 'flex', flexDirection: 'column', height: '100vh',
     }}>
       {/* Logo + App name */}
@@ -60,7 +67,8 @@ export default function Sidebar({ chats, activeChatId, onNewChat, onSelectChat, 
       <Box sx={{ px: 1.5, pb: 1.5 }}>
         <Button
           fullWidth startIcon={<AddIcon />}
-          onClick={onNewChat} disabled={loading}
+          onClick={() => { onNewChat(); onClose?.() }}
+          disabled={loading}
           variant="contained"
           sx={{
             bgcolor: '#f4c310', color: '#282b4a',
@@ -108,7 +116,7 @@ export default function Sidebar({ chats, activeChatId, onNewChat, onSelectChat, 
                       selected={chat.id === activeChatId}
                       onMouseEnter={() => setHoveredId(chat.id)}
                       onMouseLeave={() => setHoveredId(null)}
-                      onClick={() => onSelectChat(chat.id)}
+                      onClick={() => handleSelect(chat.id)}
                       sx={{
                         mx: 1, borderRadius: 1.5, mb: 0.3, py: 0.8,
                         '&.Mui-selected': { bgcolor: 'rgba(244,195,16,0.15)', '&:hover': { bgcolor: 'rgba(244,195,16,0.2)' } },
@@ -149,21 +157,56 @@ export default function Sidebar({ chats, activeChatId, onNewChat, onSelectChat, 
 
       {/* User info */}
       <Box sx={{ p: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-          <Avatar sx={{ width: 32, height: 32, bgcolor: '#f4c310', color: '#282b4a', fontSize: '0.85rem', fontWeight: 700 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, minWidth: 0 }}>
+          <Avatar sx={{ width: 32, height: 32, bgcolor: '#f4c310', color: '#282b4a', fontSize: '0.85rem', fontWeight: 700, flexShrink: 0 }}>
             {user.name?.charAt(0)?.toUpperCase() || 'U'}
           </Avatar>
-          <Typography sx={{ color: 'rgba(255,255,255,0.85)', fontSize: '0.83rem', fontWeight: 500 }}>
+          <Typography noWrap sx={{ color: 'rgba(255,255,255,0.85)', fontSize: '0.83rem', fontWeight: 500 }}>
             {user.name || 'User'}
           </Typography>
         </Box>
         <Tooltip title="Logout">
           <IconButton onClick={handleLogout} size="small"
-            sx={{ color: 'rgba(255,255,255,0.5)', '&:hover': { color: '#ef4444' } }}>
+            sx={{ color: 'rgba(255,255,255,0.5)', '&:hover': { color: '#ef4444' }, flexShrink: 0 }}>
             <LogoutIcon fontSize="small" />
           </IconButton>
         </Tooltip>
       </Box>
     </Box>
+  )
+}
+
+export default function Sidebar(props) {
+  const { mobileOpen, onMobileClose } = props
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'))
+
+  return (
+    <>
+      {/* Mobile — temporary drawer slides in from left */}
+      <Drawer
+        variant="temporary"
+        open={mobileOpen}
+        onClose={onMobileClose}
+        ModalProps={{ keepMounted: true }}
+        sx={{
+          display: { xs: 'block', md: 'none' },
+          '& .MuiDrawer-paper': {
+            width: SIDEBAR_WIDTH, bgcolor: '#282b4a',
+            border: 'none', boxSizing: 'border-box',
+          },
+        }}
+      >
+        <SidebarContent {...props} onClose={onMobileClose} />
+      </Drawer>
+
+      {/* Desktop — permanent sidebar always visible */}
+      <Box sx={{
+        display: { xs: 'none', md: 'flex' },
+        flexShrink: 0, width: SIDEBAR_WIDTH,
+      }}>
+        <SidebarContent {...props} />
+      </Box>
+    </>
   )
 }
