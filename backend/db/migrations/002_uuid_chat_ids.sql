@@ -6,6 +6,7 @@ DROP TABLE IF EXISTS messages;
 DROP TABLE IF EXISTS chats;
 
 CREATE TABLE chats (
+    
     id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id    INTEGER REFERENCES users(id) ON DELETE CASCADE,
     title      VARCHAR(500) DEFAULT 'New Chat',

@@ -11,7 +11,7 @@ def match_profiles(
     jd_text: str,
     top_k: int = 10,
     min_experience: float = None,
-    min_score: float = 0.30,
+    min_score: float = 0.60,
 ) -> list[dict]:
     query_embedding = embed_jd(jd_text)
 
