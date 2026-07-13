@@ -64,7 +64,7 @@ def delete_chat(chat_id: str, user=Depends(get_current_user)):
 
 class MessageRequest(BaseModel):
     message: str
-    top_k: int = 10
+    top_k: int = 5
 
 
 @router.post("/{chat_id}/message")

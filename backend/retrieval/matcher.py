@@ -9,7 +9,7 @@ def embed_jd(jd_text: str) -> list[float]:
 
 def match_profiles(
     jd_text: str,
-    top_k: int = 10,
+    top_k: int = 5,
     min_experience: float = None,
     min_score: float = 0.60,
 ) -> list[dict]:
